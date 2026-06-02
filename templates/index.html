@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Management System</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            margin:40px;
+        }
+
+        input{
+            padding:8px;
+            margin:5px;
+        }
+
+        button{
+            padding:8px 15px;
+            cursor:pointer;
+        }
+
+        .box{
+            border:1px solid #ccc;
+            padding:20px;
+            margin-bottom:20px;
+        }
+
+        #result{
+            margin-top:20px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>FastAPI Employee Management</h1>
+
+<!-- REGISTER -->
+
+<div class="box">
+    <h2>Register</h2>
+
+    <input type="text" id="reg_username" placeholder="Username">
+    <input type="password" id="reg_password" placeholder="Password">
+
+    <button onclick="registerUser()">Register</button>
+</div>
+
+<!-- LOGIN -->
+
+<div class="box">
+    <h2>Login</h2>
+
+    <input type="text" id="login_username" placeholder="Username">
+    <input type="password" id="login_password" placeholder="Password">
+
+    <button onclick="loginUser()">Login</button>
+
+    <p>
+        Token:
+        <span id="token"></span>
+    </p>
+</div>
+
+<!-- CREATE EMPLOYEE -->
+
+<div class="box">
+    <h2>Create Employee</h2>
+
+    <input type="text" id="name" placeholder="Name">
+    <input type="number" id="age" placeholder="Age">
+    <input type="number" id="salary" placeholder="Salary">
+
+    <button onclick="createEmployee()">Create</button>
+</div>
+
+<!-- GET EMPLOYEES -->
+
+<div class="box">
+    <h2>Employees</h2>
+
+    <button onclick="getEmployees()">Get Employees</button>
+
+    <pre id="employees"></pre>
+</div>
+
+<div id="result"></div>
+
+<script>
+
+let token = "";
+
+
+async function registerUser(){
+
+    let response = await fetch("/register",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            username:document.getElementById("reg_username").value,
+            password:document.getElementById("reg_password").value
+        })
+    });
+
+    let data = await response.json();
+
+    document.getElementById("result").innerHTML =
+    JSON.stringify(data);
+}
+
+
+async function loginUser(){
+
+    let response = await fetch("/login",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            username:document.getElementById("login_username").value,
+            password:document.getElementById("login_password").value
+        })
+    });
+
+    let data = await response.json();
+
+    token = data.token;
+
+    document.getElementById("token").innerText = token;
+
+    document.getElementById("result").innerHTML =
+    JSON.stringify(data);
+}
+
+
+async function createEmployee(){
+
+    let response = await fetch("/employees",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "token":token
+        },
+        body:JSON.stringify({
+            name:document.getElementById("name").value,
+            age:Number(document.getElementById("age").value),
+            salary:Number(document.getElementById("salary").value)
+        })
+    });
+
+    let data = await response.json();
+
+    document.getElementById("result").innerHTML =
+    JSON.stringify(data);
+}
+
+
+async function getEmployees(){
+
+    let response = await fetch("/employees",{
+        method:"GET",
+        headers:{
+            "token":token
+        }
+    });
+
+    let data = await response.json();
+
+    document.getElementById("employees").innerText =
+    JSON.stringify(data,null,2);
+}
+
+</script>
+
+</body>
+</html>
